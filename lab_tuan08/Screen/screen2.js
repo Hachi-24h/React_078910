@@ -1,69 +1,67 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Text, View, Image, StyleSheet, TextInput, TouchableOpacity, FlatList } from 'react-native';
-import { useSelector } from 'react-redux';
+import { useRecoilValue } from 'recoil';
+import { nameAtom } from '../src/nameAtom';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import axios from 'axios';
-import useFetch from '../Hook/useEffetch';
+
 const Screen2 = ({ navigation }) => {
-  const name = useSelector((state) => state.user.name);
+  const name = useRecoilValue(nameAtom);
   const [textvl, setTextvl] = useState('');
-   const {
-    data: job,
-    loading: load2,
-    error: rdf,
-    refetch: refetch2,
-  } = useFetch('https://67166a5e3fcb11b265d25175.mockapi.io/Job');
+  const [jobList, setJobList] = useState([]);
+
+  // Hàm lấy danh sách công việc từ API
+  const fetchJobs = async () => {
+    try {
+      const response = await axios.get('https://67166a5e3fcb11b265d25175.mockapi.io/Job');
+      setJobList(response.data);
+    } catch (error) {
+      console.error('Error fetching jobs:', error);
+    }
+  };
+
+  // Gọi fetchJobs khi component được mount
+  useEffect(() => {
+    fetchJobs();
+  }, []);
+
+  // Hàm xóa công việc
   const deleteJob = async (jobId) => {
     try {
       await axios.delete(`https://67166a5e3fcb11b265d25175.mockapi.io/Job/${jobId}`);
-     
+      fetchJobs(); // Cập nhật lại danh sách công việc sau khi xóa
     } catch (error) {
       console.error('Error deleting job:', error);
     }
   };
+
+  // Hàm lọc công việc theo từ khóa tìm kiếm
+  const filteredJobs = jobList.filter((job) =>
+    job.nameJob.toLowerCase().includes(textvl.toLowerCase())
+  );
+
+  // Hàm render từng mục công việc
   const renderJobItem = ({ item }) => (
-    <View
-      style={{
-        flexDirection: 'row',
-        width: '90%',
-        justifyContent: 'space-between',
-        margin: 5,
-        backgroundColor: 'white',
-        borderRadius: 20,
-        height: 40,
-        alignItems: 'center',
-      }}>
-      <TouchableOpacity>
-        <Image
-          source={require('../Data/mdi_marker-tick.png')}
-          style={{ marginLeft: 20 }}
-        />
-      </TouchableOpacity>
-      <Text>{item.nameJob} </Text>
-      <View style={{flexDirection:'row'}}>
+    <View style={styles.jobItem}>
+      <Text style={styles.jobText}>{item.nameJob}</Text>
+      <View style={styles.jobActions}>
         <TouchableOpacity
           onPress={() =>
             navigation.navigate('Screen3', {
               textinput: item.nameJob,
               title: 'EDIT YOUR JOB',
-              idSp: `${item.id}`,
+              idSp: item.id,
             })
           }>
-          <Image
-            source={require('../Data/iconamoon_edit-bold.png')}
-            style={{ marginRight: 20 }}
-          />
+          <Image source={require('../Data/iconamoon_edit-bold.png')} style={styles.icon} />
         </TouchableOpacity>
-        <TouchableOpacity style={{marginRight:20}} onPress={() => deleteJob(item.id)} >
-          <Icon name="trash" size={24} color="red"  />
+        <TouchableOpacity onPress={() => deleteJob(item.id)}>
+          <Icon name="trash" size={24} color="red" />
         </TouchableOpacity>
       </View>
     </View>
   );
 
-  const filterJob = job.filter((item) =>
-    item.nameJob.toLowerCase().includes(textvl.toLowerCase())
-  );
   return (
     <View style={styles.container}>
       <View style={styles.header}>
@@ -83,11 +81,15 @@ const Screen2 = ({ navigation }) => {
           placeholder="Search"
         />
       </View>
-      <View style={styles.listContainer}>
-           <FlatList data={filterJob} renderItem={renderJobItem} />
+      <View style={{width:'100%',height:400}}>
+        <FlatList
+          data={filteredJobs}
+          renderItem={renderJobItem}
+          keyExtractor={(item) => item.id.toString()}
+        />
       </View>
       <View style={styles.addButtonContainer}>
-        <TouchableOpacity onPress={() => navigation.navigate('Screen3')} style={styles.addButton}>
+        <TouchableOpacity onPress={() => navigation.navigate('Screen3', { title: 'ADD YOUR JOB' })} style={styles.addButton}>
           <Text style={styles.addButtonText}>+</Text>
         </TouchableOpacity>
       </View>
@@ -98,10 +100,12 @@ const Screen2 = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    padding: 10,
   },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
+    padding: 10,
   },
   userContainer: {
     flexDirection: 'row',
@@ -116,21 +120,37 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     height: 40,
     width: '80%',
-    marginBottom: 40,
+    marginBottom: 20,
+    alignSelf: 'center',
   },
   textInput: {
     borderRadius: 10,
-    borderWidth: 0,
-    height: '100%',
     paddingLeft: 20,
+    height:'100%'
   },
-  listContainer: {
-    width: '100%',
-    height: 450,
+
+  jobItem: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    padding: 15,
+    marginVertical: 5,
+    backgroundColor: '#f9f9f9',
+    borderRadius: 10,
+    borderColor: '#ddd',
+    borderWidth: 1,
+  },
+  jobText: {
+    fontSize: 16,
+  },
+  jobActions: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  icon: {
+    marginRight: 15,
   },
   addButtonContainer: {
-    flex: 1,
-    width: '100%',
     alignItems: 'center',
     marginTop: 20,
   },
@@ -139,10 +159,13 @@ const styles = StyleSheet.create({
     borderRadius: 40,
     width: 80,
     height: 80,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   addButtonText: {
-    textAlign: 'center',
+    color: 'white',
     fontSize: 50,
+    textAlign: 'center',
   },
 });
 

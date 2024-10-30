@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { Text, View, Image, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
-import { useSelector } from 'react-redux';
+import { useRecoilValue } from 'recoil';
+import { nameAtom } from '../src/nameAtom';
 import axios from 'axios';
 
 const Screen3 = ({ route, navigation }) => {
-  const name = useSelector((state) => state.user.name);
-  const { ten = '', textinput = '', title = 'ADD YOUR JOB', idSp = null } = route?.params || {};
+  const name = useRecoilValue(nameAtom);
+  const { textinput = '', title = 'ADD YOUR JOB', idSp = null } = route?.params || {};
   const [namejob, setNameJob] = useState('');
 
   useEffect(() => {
@@ -67,11 +68,14 @@ const Screen3 = ({ route, navigation }) => {
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
+ 
+    justifyContent: 'center',
+    paddingHorizontal: 20,
   },
   header: {
     flexDirection: 'row-reverse',
     justifyContent: 'space-between',
+    marginBottom: 20,
   },
   userContainer: {
     flexDirection: 'row',
@@ -84,24 +88,21 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     fontSize: 30,
     fontWeight: 'bold',
+    marginBottom: 20,
   },
   inputContainer: {
-    marginTop: 30,
     borderWidth: 1,
     borderColor: 'black',
     borderRadius: 10,
     height: 40,
-    width: '80%',
     marginBottom: 40,
   },
   textInput: {
     borderRadius: 10,
-    borderWidth: 0,
     height: '100%',
     paddingLeft: 20,
   },
   button: {
-    marginTop: 80,
     borderWidth: 1,
     borderRadius: 10,
     borderColor: '#00bdd6',

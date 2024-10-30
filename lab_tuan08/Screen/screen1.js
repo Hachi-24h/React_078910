@@ -1,11 +1,10 @@
 import React from 'react';
 import { Text, View, Image, StyleSheet, TextInput, TouchableOpacity } from 'react-native';
-import { useDispatch, useSelector } from 'react-redux';
-import { setName } from '../src/userslice';
+import { useRecoilState } from 'recoil';
+import { nameAtom } from '../src/nameAtom';
 
 const Screen1 = ({ navigation }) => {
-  const dispatch = useDispatch();
-  const name = useSelector((state) => state.user.name);
+  const [name, setName] = useRecoilState(nameAtom);
 
   return (
     <View style={styles.container}>
@@ -15,7 +14,7 @@ const Screen1 = ({ navigation }) => {
       </View>
       <View style={styles.input}>
         <TextInput
-          onChangeText={(text) => dispatch(setName(text))}
+          onChangeText={setName}
           style={styles.textInput}
           value={name}
           placeholder="Enter your name"
@@ -33,10 +32,11 @@ const Screen1 = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   imageContainer: {
     width: '100%',
-    alignContent: 'center',
     alignItems: 'center',
     marginTop: 50,
   },
@@ -53,22 +53,18 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     height: 40,
     width: '70%',
-    marginLeft: '15%',
   },
   textInput: {
     borderRadius: 10,
-    borderWidth: 0,
     height: '100%',
     paddingLeft: 20,
   },
   buttonContainer: {
     width: '100%',
-    alignContent: 'center',
     alignItems: 'center',
     marginTop: 50,
   },
   button: {
-    marginTop: 80,
     borderWidth: 1,
     borderRadius: 10,
     borderColor: '#00bdd6',
