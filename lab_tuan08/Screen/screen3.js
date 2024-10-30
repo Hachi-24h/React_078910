@@ -1,101 +1,120 @@
-import {
-  Text,
-  View,
-  Image,
-  TextInput,
-  TouchableOpacity,
-} from 'react-native';
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
+import { Text, View, Image, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
+import { useSelector } from 'react-redux';
 import axios from 'axios';
 
 const Screen3 = ({ route, navigation }) => {
-  const { ten, textinput, title, idSp } = route.params;
+  const name = useSelector((state) => state.user.name);
+  const { ten = '', textinput = '', title = 'ADD YOUR JOB', idSp = null } = route?.params || {};
   const [namejob, setNameJob] = useState('');
-  const [title1, setTitle1] = useState("ADD YOUR JOB");
-  const [text1, setText1] = useState(ten|| ' ');
-
 
   useEffect(() => {
-    
-      setTitle1(title);
-      setText1(textinput || 'Input your name job');
-      setNameJob(textinput || ''); 
-    
-  }, [textinput, title]);
+    setNameJob(textinput || '');
+  }, [textinput]);
 
-  // Hàm thêm job
-  const addJob = async ({ ten }) => {
+  const addJob = async () => {
     try {
-      const response = await axios.post(
-        'https://67166a5e3fcb11b265d25175.mockapi.io/Job',
-        {
-          nameJob: ten,
-        }
-      );
-      console.log('Job added successfully:', response.data);
+      await axios.post('https://67166a5e3fcb11b265d25175.mockapi.io/Job', { nameJob: namejob });
+      navigation.navigate('Screen2');
     } catch (error) {
       console.error('Error adding job:', error);
     }
   };
 
-  // Hàm cập nhật job
-  const updateJob = async (updatedName) => {
+  const updateJob = async () => {
     try {
-      const response = await axios.put(
-        `https://67166a5e3fcb11b265d25175.mockapi.io/Job/${idSp}`,
-        {
-          nameJob: updatedName,
-        }
-      );
-      console.log('Job updated successfully:', response.data);
+      await axios.put(`https://67166a5e3fcb11b265d25175.mockapi.io/Job/${idSp}`, { nameJob: namejob });
+      navigation.navigate('Screen2');
     } catch (error) {
       console.error('Error updating job:', error);
     }
   };
 
-  // Hàm xử lý khi nhấn nút Finish
-  const handler = async () => {
-    if (title1 === "ADD YOUR JOB") {
-      await addJob({ ten: namejob });
+  const handleFinish = async () => {
+    if (title === 'ADD YOUR JOB') {
+      await addJob();
     } else {
-      await updateJob(namejob);
+      await updateJob();
     }
-    navigation.navigate('Screen2', { vlname: ten });
   };
 
   return (
-    <View>
-      <View style={{ flexDirection: 'row-reverse', justifyContent: 'space-between' }}>
-        <TouchableOpacity onPress={() => navigation.navigate('Screen2', { vlname: ten })}>
+    <View style={styles.container}>
+      <View style={styles.header}>
+        <TouchableOpacity onPress={() => navigation.navigate('Screen2')}>
           <Image source={require('../Data/IconButton12.png')} />
         </TouchableOpacity>
-        <View style={{ flexDirection: 'row' }}>
-          <Image source={require('../Data/Avatar31.png')} style={{ marginRight: 10 }} />
-          <Text>{`tên là : ${ten}`}{`\n`}Have a great day ahead{' '}</Text>
+        <View style={styles.userContainer}>
+          <Image source={require('../Data/Avatar31.png')} style={styles.avatar} />
+          <Text>{`Tên là: ${name}\nHave a great day ahead`}</Text>
         </View>
       </View>
-      <Text style={{ width: '100%', textAlign: 'center', fontSize: 30, fontWeight: 'bold' }}>
-        {title1}
-      </Text>
-      <View style={{ marginTop: 30, borderWidth: 1, borderColor: 'black', borderRadius: 10, height: 40, width: '80%', marginBottom: 40 }}>
+      <Text style={styles.title}>{title}</Text>
+      <View style={styles.inputContainer}>
         <TextInput
           onChangeText={setNameJob}
-          style={{ borderRadius: 10, borderWidth: 0, height: '100%', paddingLeft:20 }}
+          style={styles.textInput}
           value={namejob}
-          placeholder={text1}
+          placeholder="Input your job"
         />
       </View>
-      <View style={{ flex: 1, width: '100%', alignItems: 'center' }}>
-        <TouchableOpacity
-          onPress={handler} 
-          style={{ marginTop: 80, borderWidth: 1, borderRadius: 10, borderColor: '#00bdd6', justifyContent: 'center', width: '70%', height: 40, backgroundColor: '#00bdd6' }}
-        >
-          <Text style={{ textAlign: 'center', color: 'white', }}>Finish</Text>
-        </TouchableOpacity>
-      </View>
-      <Image style={{ marginTop: 100, marginLeft: 40 }} source={require('../Data/Image95.png')} />
+      <TouchableOpacity onPress={handleFinish} style={styles.button}>
+        <Text style={styles.buttonText}>Finish</Text>
+      </TouchableOpacity>
     </View>
   );
 };
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
+  header: {
+    flexDirection: 'row-reverse',
+    justifyContent: 'space-between',
+  },
+  userContainer: {
+    flexDirection: 'row',
+  },
+  avatar: {
+    marginRight: 10,
+  },
+  title: {
+    width: '100%',
+    textAlign: 'center',
+    fontSize: 30,
+    fontWeight: 'bold',
+  },
+  inputContainer: {
+    marginTop: 30,
+    borderWidth: 1,
+    borderColor: 'black',
+    borderRadius: 10,
+    height: 40,
+    width: '80%',
+    marginBottom: 40,
+  },
+  textInput: {
+    borderRadius: 10,
+    borderWidth: 0,
+    height: '100%',
+    paddingLeft: 20,
+  },
+  button: {
+    marginTop: 80,
+    borderWidth: 1,
+    borderRadius: 10,
+    borderColor: '#00bdd6',
+    justifyContent: 'center',
+    width: '70%',
+    height: 40,
+    backgroundColor: '#00bdd6',
+    alignSelf: 'center',
+  },
+  buttonText: {
+    textAlign: 'center',
+    color: 'white',
+  },
+});
 
 export default Screen3;

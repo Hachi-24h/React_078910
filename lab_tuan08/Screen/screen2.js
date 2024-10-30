@@ -1,42 +1,26 @@
-import {
-  Text,
-  View,
-  SafeAreaView,
-  Image,
-  StyleSheet,
-  TextInput,
-  TouchableOpacity,
-  FlatList,
-  ScrollView,
-} from 'react-native';
-import { useState } from 'react';
+import React, { useState } from 'react';
+import { Text, View, Image, StyleSheet, TextInput, TouchableOpacity, FlatList } from 'react-native';
+import { useSelector } from 'react-redux';
+import Icon from 'react-native-vector-icons/FontAwesome';
 import axios from 'axios';
 import useFetch from '../Hook/useEffetch';
-import Icon from 'react-native-vector-icons/FontAwesome';
-
-const Screen2 = ({ route, navigation }) => {
+const Screen2 = ({ navigation }) => {
+  const name = useSelector((state) => state.user.name);
   const [textvl, setTextvl] = useState('');
-  const { vlname: name } = '';
-  // route.params;
-  const {
+   const {
     data: job,
     loading: load2,
     error: rdf,
     refetch: refetch2,
   } = useFetch('https://67166a5e3fcb11b265d25175.mockapi.io/Job');
-
-  
-const deleteJob = async (jobId) => {
-  try {
-    const response = await axios.delete(
-      `https://67166a5e3fcb11b265d25175.mockapi.io/Job/${jobId}`
-    );
-    console.log('Job deleted successfully:', response.data);
-    refetch2();
-  } catch (error) {
-    console.error('Error deleting job:', error);
-  }
-};
+  const deleteJob = async (jobId) => {
+    try {
+      await axios.delete(`https://67166a5e3fcb11b265d25175.mockapi.io/Job/${jobId}`);
+     
+    } catch (error) {
+      console.error('Error deleting job:', error);
+    }
+  };
   const renderJobItem = ({ item }) => (
     <View
       style={{
@@ -82,70 +66,29 @@ const deleteJob = async (jobId) => {
   );
   return (
     <View style={styles.container}>
-      <View
-        style={{
-          flex: 1,
-          flexDirection: 'row',
-          justifyContent: 'space-between',
-        }}>
-        <View>
-          <TouchableOpacity onPress={() => navigation.navigate('Screen1')}>
-            <Image source={require('../Data/IconButton12.png')} />
-          </TouchableOpacity>
+      <View style={styles.header}>
+        <TouchableOpacity onPress={() => navigation.navigate('Screen1')}>
+          <Image source={require('../Data/IconButton12.png')} />
+        </TouchableOpacity>
+        <View style={styles.userContainer}>
+          <Image source={require('../Data/Avatar31.png')} style={styles.avatar} />
+          <Text>{`Tên là: ${name}\nHave a great day ahead`}</Text>
         </View>
-        <View
-          style={{
-            flexDirection: 'row',
-          }}>
-          <Image
-            source={require('../Data/Avatar31.png')}
-            style={{ marginRight: 10 }}
-          />
-          <Text>
-            {`tên là : ${name} `}
-            {`\n`}Have agrate day a hdead{' '}
-          </Text>
-        </View>{' '}
       </View>
-      <View
-        style={{
-          marginTop: 30,
-          borderWidth: 1,
-          borderColor: 'black',
-          borderRadius: 10,
-          height: 40,
-          width: '80%',
-          marginBottom: 40,
-        }}>
+      <View style={styles.searchInput}>
         <TextInput
           onChangeText={setTextvl}
-          style={{
-            borderRadius: 10,
-            borderColor: null,
-            borderWidth: 0,
-            height: '100%',
-            paddingLeft: 20,
-          }}
+          style={styles.textInput}
           value={textvl}
-          placeholder="Search "
+          placeholder="Search"
         />
       </View>
-      <View style={{ width: '100%', height: 450 }}>
-        <FlatList data={filterJob} renderItem={renderJobItem} />
+      <View style={styles.listContainer}>
+           <FlatList data={filterJob} renderItem={renderJobItem} />
       </View>
-      <View
-        style={{ flex: 1, width: '100%', alignItems: 'center', marginTop: 20 }}>
-        <TouchableOpacity
-          style={{
-            backgroundColor: '#00bdd6',
-            borderRadius: 40,
-            width: 80,
-            height: 80,
-          }}
-          onPress={() =>
-            navigation.navigate('Screen3', { ten: name, title: 'ADD YOUR JOB' })
-          }>
-          <Text style={{ textAlign: 'center', fontSize: 50 }}>+</Text>
+      <View style={styles.addButtonContainer}>
+        <TouchableOpacity onPress={() => navigation.navigate('Screen3')} style={styles.addButton}>
+          <Text style={styles.addButtonText}>+</Text>
         </TouchableOpacity>
       </View>
     </View>
@@ -153,7 +96,54 @@ const deleteJob = async (jobId) => {
 };
 
 const styles = StyleSheet.create({
-  container: {},
+  container: {
+    flex: 1,
+  },
+  header: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+  userContainer: {
+    flexDirection: 'row',
+  },
+  avatar: {
+    marginRight: 10,
+  },
+  searchInput: {
+    marginTop: 30,
+    borderWidth: 1,
+    borderColor: 'black',
+    borderRadius: 10,
+    height: 40,
+    width: '80%',
+    marginBottom: 40,
+  },
+  textInput: {
+    borderRadius: 10,
+    borderWidth: 0,
+    height: '100%',
+    paddingLeft: 20,
+  },
+  listContainer: {
+    width: '100%',
+    height: 450,
+  },
+  addButtonContainer: {
+    flex: 1,
+    width: '100%',
+    alignItems: 'center',
+    marginTop: 20,
+  },
+  addButton: {
+    backgroundColor: '#00bdd6',
+    borderRadius: 40,
+    width: 80,
+    height: 80,
+  },
+  addButtonText: {
+    textAlign: 'center',
+    fontSize: 50,
+  },
 });
 
 export default Screen2;
