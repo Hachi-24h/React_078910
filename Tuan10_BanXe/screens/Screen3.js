@@ -4,7 +4,7 @@ import { MaterialIcons } from '@expo/vector-icons';
 import { useDispatch, useSelector } from 'react-redux';
 import { toggleHeart } from '../slices/bikesSlice';
 
-const Screen3 = ({ route }) => {
+const Screen3 = ({ navigation,route }) => {
   const { bike } = route.params;
   const dispatch = useDispatch();
   const currentBike = useSelector((state) =>
@@ -32,6 +32,15 @@ const Screen3 = ({ route }) => {
   return (
     <View style={styles.container}>
       <View style={styles.imgContainer}>
+        <TouchableOpacity   onPress={() => navigation.goBack()} style={{ 
+          marginTop: 10, 
+          padding: 10, 
+          alignSelf: 'flex-start', 
+          backgroundColor: '#ddd', 
+          borderRadius: 8 
+        }}>
+        <Text style={{ color: '#333', fontSize: 16, fontWeight: 'bold' }}>Quay Lại</Text>
+      </TouchableOpacity>
         <Image source={ getImage(currentBike.image)}  style={styles.image} />
       </View>
       <Text style={styles.title}>{currentBike.name}</Text>
